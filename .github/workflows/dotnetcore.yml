@@ -30,6 +30,6 @@ jobs:
         name: art-${{ env.PackageVersion }}
         path: ${{ env.PackagePath }}/${{ env.PackageName }}
     - name: push github
-      run: dotnet nuget push "${{ env.PackagePath }}/${{ env.PackageName }}"
+      run: dotnet nuget push "${{ env.PackagePath }}/${{ env.PackageName }}" --skip-duplicate
     - name: push nuget
-      run: dotnet nuget push "${{ env.PackagePath }}/${{ env.PackageName }}" --source "https://api.nuget.org/v3/index.json" --api-key ${{secrets.nuget_apiKey}}
+      run: dotnet nuget push "${{ env.PackagePath }}/${{ env.PackageName }}" --source "https://api.nuget.org/v3/index.json" --api-key ${{secrets.nuget_apiKey}} --skip-duplicate
