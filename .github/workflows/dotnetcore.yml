@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PackageVersion: 0.1.0.${{ github.run_number }}
+      BuildResultName: OperationResults.0.1.0.${{ github.run_number }}.nupkg
       PackageName: EVault.OperationResults.0.1.0.${{ github.run_number }}.nupkg
       PackagePath: ./bin/release/packs
     steps:
@@ -23,7 +24,9 @@ jobs:
     - name: build
       run: dotnet build --configuration Release -p:Version=${{ env.PackageVersion }}
     - name: build package
-      run: dotnet pack --configuration Release --output ${{ env.PackagePath }} -p:Version=${{ env.PackageVersion }}
+      run: |
+        dotnet pack --no-build --output ${{ env.PackagePath }} -p:Version=${{ env.PackageVersion }}
+        copy ${{ env.PackagePath }}/{{ env.BuildResultName }} ${{ env.PackagePath }}/{{ env.PackageName }}
     - name: upload
       uses: actions/upload-artifact@v1
       with:
