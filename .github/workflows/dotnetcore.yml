@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PackageVersion: 0.1.0.${{ github.run_number }}
-      PackageName: OperationResults.0.1.0.${{ github.run_number }}.nupkg
+      PackageName: EVault.OperationResults.0.1.0.${{ github.run_number }}.nupkg
       PackagePath: ./bin/release/packs
     steps:
     - uses: actions/checkout@v2
