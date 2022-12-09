@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PackageVersion: 0.1.0.${{ github.run_number }}
-      PackageName: OperationResults.0.1.0.${{ github.run_number }}.nupkg
+      PackageName: EVault.OperationResults.0.1.0.${{ github.run_number }}.nupkg
+      PackageId: EVault.OperationResults
       PackagePath: ./bin/release/packs
     steps:
     - uses: actions/checkout@v2
@@ -23,7 +24,7 @@ jobs:
     - name: build
       run: dotnet build --configuration Release -p:Version=${{ env.PackageVersion }}
     - name: build package
-      run: dotnet pack --configuration Release --output ${{ env.PackagePath }} -p:Version=${{ env.PackageVersion }}
+      run: dotnet pack --configuration Release --output ${{ env.PackagePath }} -p:Version=${{ env.PackageVersion }} -p:PackageId=${{ env.PackageId }}
     - name: upload
       uses: actions/upload-artifact@v1
       with:

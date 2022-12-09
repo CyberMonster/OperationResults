@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>disable</Nullable>
+    <PackageId>EVault.$(AssemblyName)</PackageId>
+    <Authors>EVault</Authors>
+    <PackageProjectUrl>https://github.com/CyberMonster/OperationResults</PackageProjectUrl>
+    <RepositoryUrl></RepositoryUrl>
+    <RepositoryType></RepositoryType>
   </PropertyGroup>
 
 </Project>
