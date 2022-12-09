@@ -26,7 +26,7 @@ jobs:
     - name: build package
       run: |
         dotnet pack --configuration Release --output ${{ env.PackagePath }} -p:Version=${{ env.PackageVersion }}
-        copy ${{ env.PackagePath }}/{{ env.BuildResultName }} ${{ env.PackagePath }}/{{ env.PackageName }}
+        cp ${{ env.PackagePath }}/{{ env.BuildResultName }} ${{ env.PackagePath }}/{{ env.PackageName }}
     - name: upload
       uses: actions/upload-artifact@v1
       with:
