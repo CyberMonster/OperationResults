@@ -5,7 +5,7 @@ namespace OperationResults
     [Serializable]
     public class OperationResult
     {
-        public static OperationResult Success => new();
+        public static OperationResult Success { get; } = new();
 
         public bool IsSuccess => Error is null;
         public bool HasError => Error is not null;
