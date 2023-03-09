@@ -1,13 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Nullable>disable</Nullable>
     <PackageId>EVault.$(AssemblyName)</PackageId>
-    <Authors>EVault</Authors>
+    <Authors>EVault; CyberMonster</Authors>
     <PackageProjectUrl>https://github.com/CyberMonster/OperationResults</PackageProjectUrl>
-    <RepositoryUrl></RepositoryUrl>
-    <RepositoryType></RepositoryType>
+    <RepositoryUrl>https://github.com/CyberMonster/OperationResults</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://cdn-icons-png.flaticon.com/256/2656/2656088.png</PackageIconUrl>
+    <ApplicationIcon>$(ProjectDir)..\Assets\Icon256x256.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="$(ProjectDir)..\Assets\Icon256x256.png" />
+    <None Remove="$(ProjectDir)..\Assets\Icon256x256.ico" />
+    <None Remove="$(ProjectDir)..\Assets\IconSource.info" />
+    <Resource Include="$(ProjectDir)..\Assets\Icon256x256.png" Pack="True" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
