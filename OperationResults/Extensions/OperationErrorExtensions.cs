@@ -35,7 +35,7 @@ namespace OperationResults.Extensions
 
         public static OperationResult<T> RemoveInnerException<T>(this OperationResult<T> result)
         {
-            if (result.Error?.InnerException is object)
+            if (result.Error?.InnerException is not null)
             {
                 var error = result.Error;
                 var innerExceptionProperty = error.GetType()

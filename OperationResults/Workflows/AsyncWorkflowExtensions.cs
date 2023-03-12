@@ -1,44 +1,101 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using OperationResults.Extensions;
+using OperationResults.OperationErrors;
+
 namespace OperationResults.Workflow
 {
-    public static partial class AsyncWorkflowExtensions
+    public static partial class WorkflowExtensions
     {
-        public static async Task<OperationResult> Execute(this Task<OperationResult> source, Action<OperationResult> action)
-            => (await source).Execute(action);
+        public static Task<TResult> Execute<TResult>(Func<Task<TResult>> action)
+            where TResult : OperationResult
+            => action.Invoke();
 
-        public static async Task<OperationResult> Execute<TSource>(this Task<OperationResult<TSource>> source, Action<OperationResult<TSource>> action)
-            => (await source).Execute(action);
+        public static async Task<TResult> Execute<TSource, TResult>(this Task<TSource> source, Func<TSource, Task<TResult>> action)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            => await (await source).Execute<TSource, TResult>(action);
 
-        public static async Task<OperationResult<TResult>> Execute<TResult>(this Task<OperationResult<TResult>> source, Func<OperationResult<TResult>, OperationResult<TResult>> action)
-            => (await source).Execute(action);
+        public static Task<TResult> Execute<TSource, TResult>(this TSource source, Func<TSource, Task<TResult>> action)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            => action.Invoke(source);
 
-        public static async Task<OperationResult> SafeExecute<TError>(this Task<OperationResult> source, Action<OperationResult> action, string errorMessage = null)
+        public static Task<TResult> SafeExecute<TResult, TError>(Func<Task<TResult>> action, string errorMessage = null)
+            where TResult : OperationResult
             where TError : OperationError
-            => (await source).SafeExecute<TError>(action, errorMessage);
+            => OperationResult.Success.SafeExecute<OperationResult, TResult, TError, Exception>(_ => action.Invoke(), errorMessage);
 
-        public static async Task<OperationResult> SafeExecute<TError, TException>(this Task<OperationResult> source, Action<OperationResult> action, string errorMessage = null)
+        public static async Task<TResult> SafeExecute<TSource, TResult, TError>(this Task<TSource> source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            where TError : OperationError
+            => await (await source).SafeExecute<TSource, TResult, TError>(action, errorMessage);
+
+        public static Task<TResult> SafeExecute<TSource, TResult, TError>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            where TError : OperationError
+            => source.SafeExecute<TSource, TResult, TError, Exception>(action, errorMessage);
+
+        public static async Task<TResult> SafeExecute<TSource, TResult, TError, TException>(this Task<TSource> source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
             where TError : OperationError
             where TException : Exception
-            => (await source).SafeExecute<TError, TException>(action, errorMessage);
+            => await (await source).SafeExecute<TSource, TResult, TError, TException>(action, errorMessage);
 
-        public static async Task<OperationResult> SafeExecute<TSource, TError>(this Task<OperationResult<TSource>> source, Action<OperationResult<TSource>> action, string errorMessage = null)
-            where TError : OperationError
-            => (await source).SafeExecute<TSource, TError>(action, errorMessage);
-
-        public static async Task<OperationResult> SafeExecute<TSource, TError, TException>(this Task<OperationResult<TSource>> source, Action<OperationResult<TSource>> action, string errorMessage = null)
+        public static Task<TResult> SafeExecute<TSource, TResult, TError, TException>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
             where TError : OperationError
             where TException : Exception
-            => (await source).SafeExecute<TSource, TError, TException>(action, errorMessage);
+        {
+            try { return action.Invoke(source); }
+            catch (TException ex) { return new WorkflowOperationError(ex, errorMessage).CastToType<TError>().WrapErrorWithTypeCheck<TResult, TError>().AsTask(); }
+        }
 
-        public static async Task<OperationResult<TResult>> SafeExecute<TResult, TError>(this Task<OperationResult<TResult>> source, Func<OperationResult<TResult>, OperationResult<TResult>> action, string errorMessage = null)
+        public static async Task<TResult> ExecuteIfSuccess<TSource, TResult>(this Task<TSource> source, Func<TSource, Task<TResult>> action)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            => await (await source).ExecuteIfSuccess<TSource, TResult>(action);
+
+        public static Task<TResult> ExecuteIfSuccess<TSource, TResult>(this TSource source, Func<TSource, Task<TResult>> action)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            => !source ? source.Error.WrapErrorWithTypeCheck<TResult, OperationError>().AsTask() : action.Invoke(source);
+
+        public static Task<TResult> SafeExecuteIfSuccess<TSource, TResult, TError>(this Task<TSource> source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
             where TError : OperationError
-            => (await source).SafeExecute<TResult, TError>(action, errorMessage);
+            => source.SafeExecuteIfSuccess<TSource, TResult, TError, Exception>(action, errorMessage);
 
-        public static async Task<OperationResult<TResult>> SafeExecute<TResult, TError, TException>(this Task<OperationResult<TResult>> source, Func<OperationResult<TResult>, OperationResult<TResult>> action, string errorMessage = null)
+        public static Task<TResult> SafeExecuteIfSuccess<TSource, TResult, TError>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            where TError : OperationError
+            => source.SafeExecuteIfSuccess<TSource, TResult, TError, Exception>(action, errorMessage);
+
+        public static async Task<TResult> SafeExecuteIfSuccess<TSource, TResult, TError, TException>(this Task<TSource> source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
             where TError : OperationError
             where TException : Exception
-            => (await source).SafeExecute<TResult, TError, TException>(action, errorMessage);
+            => await (await source).SafeExecuteIfSuccess<TSource, TResult, TError, TException>(action, errorMessage);
+
+        public static Task<TResult> SafeExecuteIfSuccess<TSource, TResult, TError, TException>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+            where TSource : OperationResult
+            where TResult : OperationResult
+            where TError : OperationError
+            where TException : Exception
+        {
+            if (!source)
+                return source.Error.WrapErrorWithTypeCheck<TResult, OperationError>().AsTask();
+
+            try { return action.Invoke(source); }
+            catch (TException ex) { return new WorkflowOperationError(ex, errorMessage).CastToType<TError>().WrapErrorWithTypeCheck<TResult, TError>().AsTask(); }
+        }
     }
 }
