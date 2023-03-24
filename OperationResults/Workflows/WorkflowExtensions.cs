@@ -65,11 +65,11 @@ namespace OperationResults.Workflow
             where TResult : OperationResult
             where TError : OperationError
         {
-            var errorResult = error as TResult;
-            if (errorResult is not null)
-                return errorResult;
-
-            throw new InvalidCastException($"Can't cast source error to destination wrapper. Source type: {typeof(TError).FullName} Destination type: {typeof(TResult).FullName}");
+            try { return (TResult)error; }
+            catch
+            {
+                throw new InvalidCastException($"Can't cast source error to destination wrapper. Source type: {typeof(TError).FullName} Destination type: {typeof(TResult).FullName}");
+            }
         }
     }
 }
