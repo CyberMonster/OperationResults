@@ -46,14 +46,14 @@ namespace OperationResults.Workflow
             where TException : Exception
             => await (await source).SafeExecute<TSource, TResult, TError, TException>(action, errorMessage);
 
-        public static Task<TResult> SafeExecute<TSource, TResult, TError, TException>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+        public static async Task<TResult> SafeExecute<TSource, TResult, TError, TException>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
             where TSource : OperationResult
             where TResult : OperationResult
             where TError : OperationError
             where TException : Exception
         {
-            try { return action.Invoke(source); }
-            catch (TException ex) { return new WorkflowOperationError(ex, errorMessage).CastToType<TError>().WrapErrorWithTypeCheck<TResult, TError>().AsTask(); }
+            try { return await action.Invoke(source); }
+            catch (TException ex) { return new WorkflowOperationError(ex, errorMessage).CastToType<TError>().WrapErrorWithTypeCheck<TResult, TError>(); }
         }
 
         public static async Task<TResult> ExecuteIfSuccess<TSource, TResult>(this Task<TSource> source, Func<TSource, Task<TResult>> action)
@@ -85,17 +85,17 @@ namespace OperationResults.Workflow
             where TException : Exception
             => await (await source).SafeExecuteIfSuccess<TSource, TResult, TError, TException>(action, errorMessage);
 
-        public static Task<TResult> SafeExecuteIfSuccess<TSource, TResult, TError, TException>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
+        public static async Task<TResult> SafeExecuteIfSuccess<TSource, TResult, TError, TException>(this TSource source, Func<TSource, Task<TResult>> action, string errorMessage = null)
             where TSource : OperationResult
             where TResult : OperationResult
             where TError : OperationError
             where TException : Exception
         {
             if (!source)
-                return source.Error.WrapErrorWithTypeCheck<TResult, OperationError>().AsTask();
+                return source.Error.WrapErrorWithTypeCheck<TResult, OperationError>();
 
-            try { return action.Invoke(source); }
-            catch (TException ex) { return new WorkflowOperationError(ex, errorMessage).CastToType<TError>().WrapErrorWithTypeCheck<TResult, TError>().AsTask(); }
+            try { return await action.Invoke(source); }
+            catch (TException ex) { return new WorkflowOperationError(ex, errorMessage).CastToType<TError>().WrapErrorWithTypeCheck<TResult, TError>(); }
         }
     }
 }

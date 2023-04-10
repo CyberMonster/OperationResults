@@ -1,5 +1,7 @@
 ﻿using System;
 
+using OperationResults.OperationErrors.Warnings;
+
 namespace OperationResults
 {
     [Serializable]
@@ -7,8 +9,8 @@ namespace OperationResults
     {
         public static OperationResult Success { get; } = new();
 
-        public bool IsSuccess => Error is null;
-        public bool HasError => Error is not null;
+        public bool IsSuccess => Error is null or Warning;
+        public bool HasError => Error is not null and not Warning;
         public OperationError Error { get; }
         public object Value { get; }
 

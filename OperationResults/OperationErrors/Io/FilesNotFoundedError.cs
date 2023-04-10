@@ -4,6 +4,7 @@
     {
         public string Pattern { get; set; }
 
+        private FilesNotFoundedError(string path) : base(path) { }
         public FilesNotFoundedError(string path, string pattern) : base(path)
             => Pattern = pattern;
 
