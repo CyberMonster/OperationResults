@@ -4,8 +4,18 @@ using OperationResults.OperationErrors.Warnings;
 
 namespace OperationResults
 {
+    internal interface IOperationResultInternal
+    {
+        internal static OperationResult GetSuccessResult() => new OperationResult(default(object));
+    }
+
+    internal interface IOperationResultInternal<TResult> : IOperationResultInternal
+    {
+        internal static new OperationResult GetSuccessResult() => new OperationResult<TResult>(default(TResult));
+    }
+
     [Serializable]
-    public class OperationResult
+    public class OperationResult : IOperationResultInternal
     {
         public static OperationResult Success { get; } = new();
 
@@ -48,7 +58,7 @@ namespace OperationResults
     }
 
     [Serializable]
-    public class OperationResult<T> : OperationResult
+    public class OperationResult<T> : OperationResult, IOperationResultInternal<T>
     {
         public new T Value { get; }
 
