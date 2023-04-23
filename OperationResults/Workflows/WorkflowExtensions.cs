@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using OperationResults.Extensions;
 using OperationResults.OperationErrors;
@@ -65,10 +66,22 @@ namespace OperationResults.Workflow
             where TResult : OperationResult
             where TError : OperationError
         {
-            try { return (TResult)error; }
+            try
+            {
+                var neededType = typeof(TResult);
+                var neededCtor = neededType.GetConstructors().FirstOrDefault(ctor =>
+                {
+                    var ctor_Params = ctor.GetParameters();
+                    return ctor_Params.Length == 1 && ctor_Params[0].ParameterType == typeof(OperationError);
+                });
+                if (neededCtor is not null)
+                    return (TResult)neededCtor.Invoke(new[] { error });
+                else
+                    return (TResult)error;
+            }
             catch
             {
-                throw new InvalidCastException($"Can't cast source error to destination wrapper. Source type: {typeof(TError).FullName} Destination type: {typeof(TResult).FullName}");
+                throw new InvalidCastException($"Can't cast source error to destination wrapper. Source type: {typeof(TError).FullName} Destination type: {typeof(TResult).FullName}", error.AsException());
             }
         }
     }
